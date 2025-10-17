@@ -13,6 +13,8 @@ def get_mean_saturation(img: np.ndarray) -> np.float32:
         Return:
             np.float32 - mean saturation of an image
     '''
+    if type(img) != np.ndarray:
+        raise TypeError("Wrong img is not np.ndarray")
     image_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
     img32 = image_hsv.astype(np.float32)
     mean_saturation = np.mean(img32[:, :, 1], dtype=np.float32)
@@ -42,7 +44,7 @@ def open_video(path:str) -> cv2.VideoCapture:
         Return:
             cv2.VideoCapture
     '''
-    if not type(path) == str:
+    if type(path) != str:
         raise TypeError("Incorrect path to video file")
     if not (os.path.exists(path) and os.path.isfile(path)):
         raise TypeError("Path does not exist or not a file")
@@ -51,11 +53,12 @@ def open_video(path:str) -> cv2.VideoCapture:
         raise TypeError("File is not a video")
     return cam
 
-def process_video(source:cv2.VideoCapture):
+def process_video(source:cv2.VideoCapture, wait_time:int=1):
     '''
     Process every frame of video until Escape pressed
     Args:
         source: cv2.VideoCapture
+        wait_time:int: arg for cv2.waitKey
     Return:
         timestamps: [int] - ms from video starts
         mean_saturations: [np.float32] - mean saturations of every frame by a timestamp
@@ -70,7 +73,7 @@ def process_video(source:cv2.VideoCapture):
         ret, frame = source.read()
         if not ret:
             break
-        key = cv2.waitKey(1)
+        key = cv2.waitKey(wait_time)
         cv2.imshow('Frame', frame)
         timestamps.append(int(time.time_ns()) - start_time)
         mean_saturations.append(get_mean_saturation(frame))
@@ -82,7 +85,7 @@ def process_video(source:cv2.VideoCapture):
     return timestamps, mean_saturations
 
 
-def display_and_save_graph(x, y, path_to_save_graph=None) -> None:
+def display_and_save_graph(x, y, path_to_save_graph:str=None) -> None:
     '''
     Display graph on screen and save to file
     Args:
@@ -92,12 +95,14 @@ def display_and_save_graph(x, y, path_to_save_graph=None) -> None:
     '''
     plt.plot(x, y)
     if path_to_save_graph is not None:
-        plt.savefig(path_to_save_graph)
+        try:
+            plt.savefig(path_to_save_graph)
+        except:
+            print("Graph was not saved to file")
     plt.show()
 
 
 def main(path_to_video:str = None, path_to_save_graph: str = None):
-    print(path_to_video)
     if path_to_video is None:
         camera = find_working_camera()
     else:

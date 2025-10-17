@@ -5,14 +5,9 @@
 > -file <path/to/your/file> (optional) - set source to video file instead of camera
 
 > -path <path/to/file> (optional) - set output file to save graph. If None - graph will not be saved
+## Installation:
+* `git clone https://github.com/qbt29/CV-3-45.git`
+* `cd CV-3-45`
+* `pip install -r requirements.txt`
 ## Usage:
-> python3 analyse_video_saturation.py <flags>
-### Installation:
-> git clone https://github.com/qbt29/CV-3-45.git
-
-> cd CV-3-45
-
-> pip install -r requirements.txt
-
-## Notes:
-    None
+* `python3 analyse_video_saturation.py < flags >`
