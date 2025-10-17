@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 import time
+import os
 import matplotlib.pyplot as plt
 import argparse
 
@@ -9,6 +10,8 @@ def get_mean_saturation(img: np.ndarray) -> np.float32:
     Count mean saturation of an image
         Args:
             img: np.ndarray - image to count mean saturation
+        Return:
+            np.float32 - mean saturation of an image
     '''
     image_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
     img32 = image_hsv.astype(np.float32)
@@ -29,11 +32,28 @@ def find_working_camera(start_device_id:int=0) -> cv2.VideoCapture:
         cap = cv2.VideoCapture(i)
         if cap.isOpened():
             return cap
-    return None
+    raise Exception("Available camera was not found")
+
+def open_video(path:str) -> cv2.VideoCapture:
+    '''
+        Open video file to read frames
+        Args: 
+            path:str - path to file
+        Return:
+            cv2.VideoCapture
+    '''
+    if not type(path) == str:
+        raise TypeError("Incorrect path to video file")
+    if not (os.path.exists(path) and os.path.isfile(path)):
+        raise TypeError("File does not exist or not a file")
+    cam = cv2.VideoCapture(path)
+    if not cam.isOpened():
+        raise TypeError("File is not a video")
+    return cam
 
 def process_video(source:cv2.VideoCapture):
     '''
-    Process every frame of video
+    Process every frame of video until Escape pressed
     Args:
         source: cv2.VideoCapture
     Return:
@@ -74,15 +94,18 @@ def display_and_save_graph(x, y, path_to_save_graph=None) -> None:
     plt.show()
 
 
-def main(path_to_save_graph: str):
-    camera = find_working_camera()
-    if camera is None:
-        raise Exception("Available camera was not found")
+def main(path_to_video:str = None, path_to_save_graph: str = None):
+    print(path_to_video)
+    if path_to_video is None:
+        camera = find_working_camera()
+    else:
+        camera = open_video(path_to_video)
     timestamps, mean_saturation = process_video(camera)
     display_and_save_graph(timestamps, mean_saturation, path_to_save_graph)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('-path',type=str)
+    parser.add_argument('-file', type=str)
     args=parser.parse_args()
-    main(args.path)
+    main(args.file, args.path)
