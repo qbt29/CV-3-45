@@ -45,7 +45,7 @@ def open_video(path:str) -> cv2.VideoCapture:
     if not type(path) == str:
         raise TypeError("Incorrect path to video file")
     if not (os.path.exists(path) and os.path.isfile(path)):
-        raise TypeError("File does not exist or not a file")
+        raise TypeError("Path does not exist or not a file")
     cam = cv2.VideoCapture(path)
     if not cam.isOpened():
         raise TypeError("File is not a video")
@@ -68,6 +68,8 @@ def process_video(source:cv2.VideoCapture):
 
     while True:
         ret, frame = source.read()
+        if not ret:
+            break
         key = cv2.waitKey(1)
         cv2.imshow('Frame', frame)
         timestamps.append(int(time.time_ns()) - start_time)
